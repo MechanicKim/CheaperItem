@@ -23,7 +23,7 @@ const Header = styled.Text`
   font-size: 20px;
   text-align: center;
   color: #ffffff;
-  background-color: #00796b;
+  background-color: #004c40;
 `;
 
 class Form extends React.Component {

@@ -72,8 +72,9 @@ export const removeItem = (id, callback) => {
   const realm = new Realm();
   realm.write(() => {
     const item = realm.objects('ItemPrice').filtered(`id='${id}'`);
+    const name = item[0].item;
     realm.delete(item);
-    callback(getItemsByName());
+    callback(getItemsByName(name));
   });
 }
 
