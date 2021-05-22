@@ -1,7 +1,5 @@
 import React from 'react';
-import {
-  Alert, Linking
-} from 'react-native';
+import {Alert, Linking} from 'react-native';
 import styled from 'styled-components/native';
 
 const View = styled.View`
@@ -27,7 +25,7 @@ const Text = styled.Text`
 `;
 
 export default function Footer(props) {
-  const { back, itemName, add } = props;
+  const {back, itemName, add} = props;
 
   return (
     <View>
@@ -49,6 +47,8 @@ async function link(itemName) {
   if (await Linking.canOpenURL(url)) {
     await Linking.openURL(url);
   } else {
-    Alert.alert('알림', '검색을 지원하지 않는 기기 또는 OS 버전입니다.', [{ text: '확인' }]);
+    Alert.alert('알림', '검색을 지원하지 않는 기기 또는 OS 버전입니다.', [
+      {text: '확인'},
+    ]);
   }
 }

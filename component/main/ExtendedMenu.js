@@ -25,11 +25,13 @@ const Text = styled.Text`
 `;
 
 export default function ExtendedMenu(props) {
-  const { data, rowMap, remove, search } = props;
+  const {data, rowMap, remove, search} = props;
 
   return (
     <Menu>
-      <Item onPress={() => remove(data.item, rowMap[data.item.key])} activeOpacity={0.7}>
+      <Item
+        onPress={() => remove(data.item, rowMap[data.item.key])}
+        activeOpacity={0.7}>
         <Text>삭제</Text>
       </Item>
       <Item onPress={() => search(data.item)} activeOpacity={0.7}>

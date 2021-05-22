@@ -7,7 +7,7 @@ const Body = styled.View`
   align-items: center;
 `;
 
-const Text= styled.Text`
+const Text = styled.Text`
   margin: 10px;
   font-size: 17px;
   font-family: 'NotoSansKR-Regular';

@@ -1,15 +1,11 @@
 import React from 'react';
-import {
-  Alert, StatusBar
-} from 'react-native';
+import {Alert, StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
-import { css } from 'styled-components'
-import Realm from 'realm';
-import { getItemsByName, removeItem, setData } from '../component/Storage';
+import {getItemsByName, removeItem, setData} from '../component/Storage';
 
-import { BackButton } from 'react-router-native';
-import { SwipeListView } from 'react-native-swipe-list-view';
+import {BackButton} from 'react-router-native';
+import {SwipeListView} from 'react-native-swipe-list-view';
 import ListItem from '../component/view/ListItem';
 import ExtendedMenu from '../component/view/ExtendedMenu';
 import Footer from '../component/view/Footer';
@@ -30,29 +26,33 @@ class Form extends React.Component {
   constructor(props) {
     super(props);
 
-    const { name } = this.props.match.params;
+    const {name} = this.props.match.params;
     this.state = {
-      items: getItemsByName(name)
+      items: getItemsByName(name),
     };
   }
 
   render() {
-    const { items } = this.state;
-    const { name } = this.props.match.params;
+    const {items} = this.state;
+    const {name} = this.props.match.params;
 
     return (
       <Page>
         <StatusBar barStyle="dark-content" />
         <BackButton />
         <Header>{name}</Header>
-        {items.length > 0 &&
+        {items.length > 0 && (
           <SwipeListView
-            data={items.map(item => {
+            data={items.map((item) => {
               item.key = item.id;
               return item;
             })}
             renderItem={(data, rowMap) => (
-              <ListItem key={data.item.key} item={data.item} select={this.update} />
+              <ListItem
+                key={data.item.key}
+                item={data.item}
+                select={this.update}
+              />
             )}
             renderHiddenItem={(data, rowMap) => (
               <ExtendedMenu data={data} rowMap={rowMap} remove={this.remove} />
@@ -60,15 +60,19 @@ class Form extends React.Component {
             rightOpenValue={-75}
             recalculateHiddenLayout={true}
           />
-        }
-        <Footer back={this.props.history.goBack} itemName={name} add={this.add}  />
+        )}
+        <Footer
+          back={this.props.history.goBack}
+          itemName={name}
+          add={this.add}
+        />
       </Page>
     );
   }
 
-  update = item => {
+  update = (item) => {
     this.props.history.push(`/update/${item.id}`);
-  }
+  };
 
   remove = (item, ref) => {
     Alert.alert(
@@ -82,25 +86,25 @@ class Form extends React.Component {
         {
           text: '삭제',
           onPress: () => {
-            removeItem(item.id, items => {
+            removeItem(item.id, (items) => {
               ref.closeRow();
               if (items.length === 0) {
                 this.props.history.goBack();
               } else {
-                this.setState({ items });
+                this.setState({items});
               }
             });
-          }
+          },
         },
       ],
-      { cancelable: true },
+      {cancelable: true},
     );
-  }
+  };
 
   add = () => {
     setData('name', this.props.match.params.name);
     this.props.history.push('/write');
-  }
+  };
 }
 
 export default Form;

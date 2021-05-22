@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/native';
-import { setComma } from '../Util';
+import {setComma} from '../Util';
 
 const Wrap = styled.TouchableOpacity`
   flex-direction: row;
@@ -46,7 +46,7 @@ const PriceGroup = styled.View`
 `;
 
 export default function ListItem(props) {
-  const { item, select } = props;
+  const {item, select} = props;
 
   let unit = '단위정보 없음';
   if (item.unit !== '' && item.unitValue > 0) {

@@ -32,7 +32,7 @@ const Text = styled.Text`
 `;
 
 export default function Footer(props) {
-  const { search, add } = props;
+  const {search, add} = props;
 
   return (
     <View>

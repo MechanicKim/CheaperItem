@@ -6,8 +6,8 @@
  * @flow strict-local
  */
 
-import React, { Component } from 'react';
-import { NativeRouter, Route } from "react-router-native";
+import React, {Component} from 'react';
+import {NativeRouter, Route} from 'react-router-native';
 
 import Main from './page/Main';
 import View from './page/View';

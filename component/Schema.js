@@ -6,16 +6,16 @@ export const ItemPriceSchema = {
     item: 'string',
     price: 'int',
     unitValue: 'int',
-    unit: 'string'
-  }
+    unit: 'string',
+  },
 };
 
 export const TempSchema = {
   name: 'Temp',
   properties: {
     key: 'string',
-    value: 'string'
-  }
+    value: 'string',
+  },
 };
 
 export const SchemaVersion = 1;

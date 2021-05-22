@@ -1,13 +1,10 @@
 import React from 'react';
-import {
-  StatusBar
-} from 'react-native';
+import {StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
-import Realm from 'realm';
-import { groupBy, setData } from '../component/Storage';
+import {groupBy, setData} from '../component/Storage';
 
-import { BackButton } from 'react-router-native';
+import {BackButton} from 'react-router-native';
 import EmptyBody from '../component/EmptyBody';
 import Footer from '../component/list/Footer';
 
@@ -34,17 +31,17 @@ const Text = styled.Text`
 `;
 
 function Items(props) {
-  const { items, select } = props;
+  const {items, select} = props;
 
   return (
     <Scroll>
-    {items.map((item, index) => {
-      return (
-        <Item key={index} onPress={() => select(item)} activeOpacity={0.7}>
-          <Text>{item}</Text>
-        </Item>
-      )
-    })}
+      {items.map((item, index) => {
+        return (
+          <Item key={index} onPress={() => select(item)} activeOpacity={0.7}>
+            <Text>{item}</Text>
+          </Item>
+        );
+      })}
     </Scroll>
   );
 }
@@ -53,21 +50,18 @@ export default class List extends React.Component {
   constructor(props) {
     super(props);
 
-    console.log();
-
-    const realm = new Realm();
     let items;
     if (this.props.match.params.type === '1') {
-      items = groupBy('mart').map(item => item.mart);
+      items = groupBy('mart').map((item) => item.mart);
     } else {
-      items = groupBy('item').map(item => item.item);
+      items = groupBy('item').map((item) => item.item);
     }
 
-    this.state = { items };
+    this.state = {items};
   }
 
   render() {
-    const { items } = this.state;
+    const {items} = this.state;
 
     return (
       <Page>
@@ -80,12 +74,15 @@ export default class List extends React.Component {
     );
   }
 
-  select = item => {
+  select = (item) => {
     let key;
-    if (this.props.match.params.type === '1') key = 'mart';
-    else key = 'name';
+    if (this.props.match.params.type === '1') {
+      key = 'mart';
+    } else {
+      key = 'name';
+    }
 
     setData(key, item);
     this.props.history.goBack();
-  }
+  };
 }

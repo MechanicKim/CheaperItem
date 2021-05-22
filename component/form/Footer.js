@@ -24,7 +24,7 @@ const Text = styled.Text`
 `;
 
 export default function Footer(props) {
-  const { back, add } = props;
+  const {back, add} = props;
 
   return (
     <View>
