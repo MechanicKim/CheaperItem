@@ -50,7 +50,7 @@ export default function ListItem(props) {
 
   let unit = '단위정보 없음';
   if (item.unit !== '' && item.unitValue > 0) {
-    unit += `${item.unit}당 ${setComma(item.unitValue)}원`;
+    unit = `${item.unit}당 ${setComma(item.unitValue)}원`;
   }
 
   return (
