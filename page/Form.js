@@ -202,7 +202,7 @@ class Form extends React.Component {
       item.id = id;
       updateItem(item, () => this.props.history.goBack());
     } else {
-      saveItem(item, () => this.props.history.goBack());
+      saveItem(item, () => this.props.history.replace(`/view/${name}`));
     }
   };
 }
