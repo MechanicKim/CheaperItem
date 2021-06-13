@@ -46,20 +46,20 @@ const PriceGroup = styled.View`
 `;
 
 export default function ListItem(props) {
-  const {item, select} = props;
+  const {mart, select} = props;
 
   let unit = '단위정보 없음';
-  if (item.unit !== '' && item.unitValue > 0) {
-    unit = `${item.unit}당 ${setComma(item.unitValue)}원`;
+  if (mart.unit !== '' && mart.unitValue > 0) {
+    unit = `${mart.unit}당 ${setComma(mart.unitValue)}원`;
   }
 
   return (
-    <Wrap onPress={() => select(item)} activeOpacity={1}>
+    <Wrap onPress={() => select(mart)} activeOpacity={1}>
       <Group>
-        <Mart>{item.mart}</Mart>
+        <Mart>{mart.name}</Mart>
       </Group>
       <PriceGroup>
-        <Price>{setComma(item.price)}원</Price>
+        <Price>{setComma(mart.price)}원</Price>
         <Unit>{unit}</Unit>
       </PriceGroup>
     </Wrap>

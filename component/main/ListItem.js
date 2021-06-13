@@ -48,15 +48,14 @@ const PriceGroup = styled.View`
 
 export default function ListItem(props) {
   const {item, select} = props;
-
   return (
     <Wrap onPress={() => select(item)} activeOpacity={1}>
       <Group>
-        <Item>{item.item}</Item>
+        <Item>{item.name}</Item>
       </Group>
       <PriceGroup>
-        <Mart>{item.mart}</Mart>
-        <Price>{setComma(item.price)}원</Price>
+        <Mart>{item.marts[0].name}</Mart>
+        <Price>{setComma(item.marts[0].price)}원</Price>
       </PriceGroup>
     </Wrap>
   );

@@ -2,7 +2,12 @@ import React from 'react';
 import {StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
-import {groupBy, setData} from '../component/Storage';
+import {
+  getItemNames,
+  getMartNames,
+  loadSelection,
+  saveSelection,
+} from '../component/Storage';
 
 import {BackButton} from 'react-router-native';
 import EmptyBody from '../component/EmptyBody';
@@ -49,15 +54,17 @@ function Items(props) {
 export default class List extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {items: []};
+  }
 
-    let items;
+  async componentDidMount() {
+    let items = [];
     if (this.props.match.params.type === '1') {
-      items = groupBy('mart').map((item) => item.mart);
+      items = await getItemNames();
     } else {
-      items = groupBy('item').map((item) => item.item);
+      items = await getMartNames();
     }
-
-    this.state = {items};
+    this.setState({items});
   }
 
   render() {
@@ -74,15 +81,15 @@ export default class List extends React.Component {
     );
   }
 
-  select = (item) => {
-    let key;
-    if (this.props.match.params.type === '1') {
-      key = 'mart';
-    } else {
-      key = 'name';
-    }
+  select = async (item) => {
+    const selection = await loadSelection();
 
-    setData(key, item);
+    if (this.props.match.params.type === '1') {
+      selection.name = item;
+    } else {
+      selection.martName = item;
+    }
+    await saveSelection(selection);
     this.props.history.goBack();
   };
 }

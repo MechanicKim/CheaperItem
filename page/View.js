@@ -2,10 +2,11 @@ import React from 'react';
 import {Alert, StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
-import {getItemsByName, removeItem, setData} from '../component/Storage';
+import {getItem, removeMart} from '../component/Storage';
 
 import {BackButton} from 'react-router-native';
 import {SwipeListView} from 'react-native-swipe-list-view';
+import EmptyBody from '../component/EmptyBody';
 import ListItem from '../component/view/ListItem';
 import ExtendedMenu from '../component/view/ExtendedMenu';
 import Footer from '../component/view/Footer';
@@ -26,33 +27,37 @@ class Form extends React.Component {
   constructor(props) {
     super(props);
 
-    const {name} = this.props.match.params;
     this.state = {
-      items: getItemsByName(name),
+      item: {
+        name: '',
+        marts: [],
+      },
     };
   }
 
-  render() {
-    const {items} = this.state;
-    const {name} = this.props.match.params;
+  async componentDidMount() {
+    const {id} = this.props.match.params;
+    this.setState({
+      item: await getItem(id),
+    });
+  }
 
+  render() {
+    const {item} = this.state;
     return (
       <Page>
         <StatusBar barStyle="dark-content" />
         <BackButton />
-        <Header>{name}</Header>
-        {items.length > 0 && (
+        <Header>{item.name}</Header>
+        {item.marts.length === 0 && <EmptyBody />}
+        {item.marts.length > 0 && (
           <SwipeListView
-            data={items.map((item) => {
-              item.key = item.id;
-              return item;
+            data={item.marts.map((mart) => {
+              mart.key = mart.id + '';
+              return mart;
             })}
             renderItem={(data, rowMap) => (
-              <ListItem
-                key={data.item.key}
-                item={data.item}
-                select={this.update}
-              />
+              <ListItem mart={data.item} select={this.update} />
             )}
             renderHiddenItem={(data, rowMap) => (
               <ExtendedMenu data={data} rowMap={rowMap} remove={this.remove} />
@@ -63,18 +68,19 @@ class Form extends React.Component {
         )}
         <Footer
           back={this.props.history.goBack}
-          itemName={name}
+          itemName={item.name}
           add={this.add}
         />
       </Page>
     );
   }
 
-  update = (item) => {
-    this.props.history.push(`/update/${item.id}`);
+  update = (mart) => {
+    const {item} = this.state;
+    this.props.history.push(`/update/${item.id}`, {...item, mart});
   };
 
-  remove = (item, ref) => {
+  remove = (mart, ref) => {
     Alert.alert(
       '확인',
       '해당 기록을 삭제할까요?',
@@ -85,15 +91,17 @@ class Form extends React.Component {
         },
         {
           text: '삭제',
-          onPress: () => {
-            removeItem(item.id, (items) => {
+          onPress: async () => {
+            const {id} = this.props.match.params;
+            const item = await removeMart(+id, mart.id);
+            if (item.marts.length === 0) {
+              this.props.history.goBack();
+            } else {
               ref.closeRow();
-              if (items.length === 0) {
-                this.props.history.goBack();
-              } else {
-                this.setState({items});
-              }
-            });
+              this.setState({
+                item,
+              });
+            }
           },
         },
       ],
@@ -102,8 +110,8 @@ class Form extends React.Component {
   };
 
   add = () => {
-    setData('name', this.props.match.params.name);
-    this.props.history.push('/write');
+    const {item} = this.state;
+    this.props.history.push(`/update/${item.id}`, item);
   };
 }
 

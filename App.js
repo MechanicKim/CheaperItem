@@ -19,7 +19,7 @@ class App extends Component {
     return (
       <NativeRouter>
         <Route exact path="/" component={Main} />
-        <Route exact path="/view/:name" component={View} />
+        <Route exact path="/view/:id" component={View} />
         <Route exact path="/write" component={Form} />
         <Route exact path="/update/:id" component={Form} />
         <Route exact path="/list/:type" component={List} />

@@ -4,11 +4,10 @@ import {Alert, StatusBar} from 'react-native';
 import styled from 'styled-components/native';
 import {css} from 'styled-components';
 import {
-  getItem,
   saveItem,
   updateItem,
-  setData,
-  getData,
+  saveSelection,
+  loadSelection,
 } from '../component/Storage';
 
 import {BackButton} from 'react-router-native';
@@ -71,32 +70,41 @@ class Form extends React.Component {
   constructor(props) {
     super(props);
 
-    const mart = getData('mart');
-    const name = getData('name');
+    const item = this.props.history.location.state;
+    const formData = {
+      name: '',
+      martName: '',
+      price: '',
+      unit: '',
+      unitValue: '',
+    };
 
-    const {id} = this.props.match.params;
-    if (!id) {
-      this.state = {
-        mart: mart || '',
-        name: name || '',
-        price: '',
-        unitValue: '',
-        unit: '',
-      };
-    } else {
-      const item = getItem(id);
-      this.state = {
-        mart: mart || item.mart,
-        name: name || item.item,
-        price: item.price + '',
-        unitValue: item.unitValue === 0 ? '' : item.unitValue + '',
-        unit: item.unit || '',
-      };
+    if (item) {
+      formData.name = item.name;
     }
+
+    if (item && item.mart) {
+      formData.martName = item.mart.name;
+      formData.price = item.mart.price + '';
+      if (item.mart.unitValue !== 0) {
+        formData.unitValue = item.mart.unitValue + '';
+      }
+      formData.unit = item.mart.unit;
+    }
+
+    this.state = formData;
+  }
+
+  async componentDidMount() {
+    const selection = await loadSelection();
+    if (!selection) {
+      return;
+    }
+    this.setState(selection);
   }
 
   render() {
-    const {mart, name, price, unitValue, unit} = this.state;
+    const {martName, name, price, unitValue, unit} = this.state;
 
     return (
       <Page>
@@ -112,7 +120,7 @@ class Form extends React.Component {
             <ButtonText>품목 가져오기</ButtonText>
           </Button>
           <Input
-            value={mart}
+            value={martName}
             onChangeText={this.onChangeMart}
             placeholder="마트 이름"
           />
@@ -144,26 +152,22 @@ class Form extends React.Component {
     );
   }
 
-  onChangeMart = (mart) => {
-    this.setState({mart});
+  onChangeMart = (martName) => {
+    this.setState({martName});
   };
 
-  searchMart = () => {
-    const {mart, name} = this.state;
-    setData('mart', mart);
-    setData('name', name);
-    this.props.history.push('/list/1');
+  searchMart = async () => {
+    await saveSelection(this.state);
+    this.props.history.push('/list/2');
   };
 
   onChangeName = (name) => {
     this.setState({name});
   };
 
-  searchItem = () => {
-    const {mart, name} = this.state;
-    setData('mart', mart);
-    setData('name', name);
-    this.props.history.push('/list/2');
+  searchItem = async () => {
+    await saveSelection(this.state);
+    this.props.history.push('/list/1');
   };
 
   onChangePrice = (price) => {
@@ -178,9 +182,9 @@ class Form extends React.Component {
     this.setState({unitValue: unitValue.replace(/[^0-9]/g, '')});
   };
 
-  addItem = () => {
+  addItem = async () => {
     const {id} = this.props.match.params;
-    const {mart, name, price, unitValue, unit} = this.state;
+    const {martName, name, price, unitValue, unit} = this.state;
 
     if (!name) {
       Alert.alert('알림', '품목을 입력하세요.', [{text: '확인'}]);
@@ -192,18 +196,33 @@ class Form extends React.Component {
       return;
     }
 
-    if (!mart) {
+    if (!martName) {
       Alert.alert('알림', '마트를 입력하세요.', [{text: '확인'}]);
       return;
     }
 
-    let item = {mart, name, price, unitValue, unit};
-    if (id) {
-      item.id = id;
-      updateItem(item, () => this.props.history.goBack());
-    } else {
-      saveItem(item, () => this.props.history.replace(`/view/${name}`));
+    if (!id) {
+      const newItemID = await saveItem({
+        martName,
+        name,
+        price,
+        unitValue,
+        unit,
+      });
+      this.props.history.replace(`/view/${newItemID}`);
+      return;
     }
+
+    const {mart} = this.props.history.location.state;
+
+    await updateItem(+id, name, {
+      id: mart ? mart.id : null,
+      name: martName,
+      price: +price,
+      unitValue: +(unitValue || 0),
+      unit,
+    });
+    this.props.history.goBack();
   };
 }
 

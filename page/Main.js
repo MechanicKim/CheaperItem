@@ -2,7 +2,12 @@ import React from 'react';
 import {Alert, Linking, StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
-import {open, removeItems, searchItem, clearTemp} from '../component/Storage';
+import {
+  getItems,
+  searchItem,
+  removeItem,
+  clearSelection,
+} from '../component/Storage';
 
 import EmptyBody from '../component/EmptyBody';
 import {SwipeListView} from 'react-native-swipe-list-view';
@@ -26,12 +31,9 @@ class Main extends React.Component {
     };
   }
 
-  componentDidMount() {
-    open((items) => {
-      if (items.length === 0) {
-        return;
-      }
-      this.setState({items});
+  async componentDidMount() {
+    this.setState({
+      items: await getItems(),
     });
   }
 
@@ -83,11 +85,10 @@ class Main extends React.Component {
         },
         {
           text: '삭제',
-          onPress: () => {
-            removeItems(item.item, (items) => {
-              ref.closeRow();
-              this.setState({items});
-            });
+          onPress: async () => {
+            const items = await removeItem(item.id);
+            ref.closeRow();
+            this.setState({items});
           },
         },
       ],
@@ -95,14 +96,13 @@ class Main extends React.Component {
     );
   };
 
-  add = () => {
-    clearTemp();
+  add = async () => {
+    await clearSelection();
     this.props.history.push('/write');
   };
 
   view = (item) => {
-    clearTemp();
-    this.props.history.push(`/view/${item.item}`);
+    this.props.history.push(`/view/${item.id}`);
   };
 
   link = async (item) => {
