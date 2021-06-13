@@ -55,54 +55,50 @@ export const saveItem = async (item) => {
 export const updateItem = async (itemId, itemName, newMart) => {
   const items = await getItems();
   items.some((item) => {
-    if (item.id === itemId) {
-      item.name = itemName;
-      if (newMart.id) {
-        return item.marts.some((mart) => {
-          if (mart.id === newMart.id) {
-            mart.name = newMart.name;
-            mart.price = newMart.price;
-            mart.unitValue = newMart.unitValue;
-            mart.unit = newMart.unit;
-            return true;
-          }
-          return false;
-        });
-      } else {
-        newMart.id = new Date().getTime();
-        item.marts.push(newMart);
-        item.marts.sort((a, b) => {
-          return a.price - b.price;
-        });
-      }
+    if (item.id !== itemId) {
+      return false;
     }
-    return false;
+
+    item.name = itemName;
+    if (newMart.id) {
+      item.marts.some((mart) => {
+        if (mart.id !== newMart.id) {
+          return false;
+        }
+        mart.name = newMart.name;
+        mart.price = newMart.price;
+        mart.unitValue = newMart.unitValue;
+        mart.unit = newMart.unit;
+        return true;
+      });
+    } else {
+      newMart.id = new Date().getTime();
+      item.marts.push(newMart);
+    }
+
+    item.marts.sort((a, b) => {
+      return a.price - b.price;
+    });
+    return true;
   });
   await AsyncStorage.setItem('items', JSON.stringify(items));
 };
 
 export const removeMart = async (itemId, martId) => {
   let items = await getItems();
-  let target = null;
-  items.some((item, index) => {
+  let result = null;
+  items = items.filter((item, index) => {
     if (item.id !== itemId) {
-      return false;
+      return true;
     }
     item.marts = item.marts.filter((mart) => {
       return mart.id !== martId;
     });
-    target = {
-      index,
-      ...item,
-    };
-    return true;
+    result = item;
+    return item.marts.length > 0;
   });
-
-  if (target && target.marts.length === 0) {
-    items = items.splice(target.index, 1);
-  }
   await AsyncStorage.setItem('items', JSON.stringify(items));
-  return await getItem(itemId);
+  return result;
 };
 
 export const getItemNames = async () => {

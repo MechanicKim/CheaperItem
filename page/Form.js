@@ -214,7 +214,6 @@ class Form extends React.Component {
     }
 
     const {mart} = this.props.history.location.state;
-
     await updateItem(+id, name, {
       id: mart ? mart.id : null,
       name: martName,

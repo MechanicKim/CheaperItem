@@ -98,9 +98,7 @@ class Form extends React.Component {
               this.props.history.goBack();
             } else {
               ref.closeRow();
-              this.setState({
-                item,
-              });
+              this.setState({item});
             }
           },
         },
