@@ -49,12 +49,15 @@ export const saveItem = async (item) => {
   };
   items.push(newItem);
   await AsyncStorage.setItem('items', JSON.stringify(items));
+  await saveName('itemNames', item.name);
+  await saveName('martNames', item.martName);
+
   return newItem.id;
 };
 
 export const updateItem = async (itemId, itemName, newMart) => {
   const items = await getItems();
-  items.some((item) => {
+  items.some(async (item) => {
     if (item.id !== itemId) {
       return false;
     }
@@ -79,6 +82,10 @@ export const updateItem = async (itemId, itemName, newMart) => {
     item.marts.sort((a, b) => {
       return a.price - b.price;
     });
+
+    await saveName('itemNames', itemName);
+    await saveName('martNames', newMart.name);
+
     return true;
   });
   await AsyncStorage.setItem('items', JSON.stringify(items));
@@ -101,25 +108,19 @@ export const removeMart = async (itemId, martId) => {
   return result;
 };
 
-export const getItemNames = async () => {
-  const items = await getItems();
-  return items
-    .map((item) => {
-      return item.name;
-    })
-    .sort();
+export const saveName = async (key, name) => {
+  const names = await AsyncStorage.getItem(key);
+  const newNames = names ? JSON.parse(names) : {};
+  if (!newNames[name]) {
+    newNames[name] = true;
+  }
+  await AsyncStorage.setItem(key, JSON.stringify(newNames));
 };
 
-export const getMartNames = async () => {
-  const items = await getItems();
-  const martNames = [];
-  items.forEach((item) => {
-    item.marts.forEach((mart) => {
-      martNames.push(mart.name);
-    });
-  });
-  martNames.sort();
-  return martNames;
+export const getNames = async (key) => {
+  const names = await AsyncStorage.getItem(key);
+  const result = names ? JSON.parse(names) : {};
+  return Object.keys(result);
 };
 
 export const clearSelection = async (selection) => {

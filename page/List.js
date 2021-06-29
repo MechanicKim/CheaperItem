@@ -2,12 +2,7 @@ import React from 'react';
 import {StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
-import {
-  getItemNames,
-  getMartNames,
-  loadSelection,
-  saveSelection,
-} from '../component/Storage';
+import {getNames, loadSelection, saveSelection} from '../component/Storage';
 
 import {BackButton} from 'react-router-native';
 import EmptyBody from '../component/EmptyBody';
@@ -60,9 +55,9 @@ export default class List extends React.Component {
   async componentDidMount() {
     let items = [];
     if (this.props.match.params.type === '1') {
-      items = await getItemNames();
+      items = await getNames('itemNames');
     } else {
-      items = await getMartNames();
+      items = await getNames('martNames');
     }
     this.setState({items});
   }
