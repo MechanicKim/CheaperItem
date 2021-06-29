@@ -16,7 +16,6 @@
     "react-native-keyboard-aware-scroll-view": "^0.9.3",
     "react-native-swipe-list-view": "^3.2.7",
     "react-router-native": "^5.2.0",
-    "realm": "^10.3.0",
     "styled-components": "^5.2.1"
   },
   "devDependencies": {

@@ -136,8 +136,8 @@ android {
         applicationId "lab.jason.cheaper"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 19
-        versionName "19.0"
+        versionCode 21
+        versionName "21.0"
     }
     splits {
         abi {
