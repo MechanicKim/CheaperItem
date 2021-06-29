@@ -121,9 +121,9 @@ class Main extends React.Component {
       clearTimeout(this.timer);
     }
 
-    this.timer = setTimeout(() => {
+    this.timer = setTimeout(async () => {
       this.setState({
-        items: searchItem(keyword),
+        items: await searchItem(keyword),
       });
     }, 200);
   };
