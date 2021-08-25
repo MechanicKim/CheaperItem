@@ -45,9 +45,7 @@ const PriceGroup = styled.View`
   background-color: #b2dfdb;
 `;
 
-export default function ListItem(props) {
-  const {mart, select} = props;
-
+export default function ListItem({mart, select}) {
   let unit = '단위정보 없음';
   if (mart.unit !== '' && mart.unitValue > 0) {
     unit = `${mart.unit}당 ${setComma(mart.unitValue)}원`;

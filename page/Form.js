@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Alert, StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
@@ -66,125 +66,67 @@ const ButtonText = styled.Text`
   color: #212121;
 `;
 
-class Form extends React.Component {
-  constructor(props) {
-    super(props);
+function getStateData(data) {
+  const result = {
+    name: '',
+    martName: '',
+    price: '',
+    unit: '',
+    unitValue: '',
+  };
 
-    const item = this.props.history.location.state;
-    const formData = {
-      name: '',
-      martName: '',
-      price: '',
-      unit: '',
-      unitValue: '',
-    };
-
-    if (item) {
-      formData.name = item.name;
-    }
-
-    if (item && item.mart) {
-      formData.martName = item.mart.name;
-      formData.price = item.mart.price + '';
-      if (item.mart.unitValue !== 0) {
-        formData.unitValue = item.mart.unitValue + '';
+  if (data) {
+    result.name = data.name;
+    if (data.mart) {
+      result.martName = data.mart.name;
+      result.price = data.mart.price + '';
+      if (data.mart.unitValue !== 0) {
+        result.unitValue = data.mart.unitValue + '';
       }
-      formData.unit = item.mart.unit;
+      result.unit = data.mart.unit;
     }
-
-    this.state = formData;
   }
 
-  async componentDidMount() {
-    const selection = await loadSelection();
-    if (!selection) {
+  return result;
+}
+
+function Form({history, match}) {
+  const stateData = getStateData(history.location.state);
+  const [name, setName] = useState(stateData.name);
+  const [martName, setMartName] = useState(stateData.martName);
+  const [price, setPrice] = useState(stateData.price);
+  const [unit, setUnit] = useState(stateData.unit);
+  const [unitValue, setUnitValue] = useState(stateData.unitValue);
+
+  useEffect(() => {
+    reloadState();
+  }, []);
+
+  async function reloadState() {
+    const data = await loadSelection();
+    if (!data) {
       return;
     }
-    this.setState(selection);
+
+    setName(data.name);
+    setMartName(data.martName);
+    setPrice(data.price);
+    setUnit(data.unit);
+    setUnitValue(data.unitValue);
   }
 
-  render() {
-    const {martName, name, price, unitValue, unit} = this.state;
-
-    return (
-      <Page>
-        <StatusBar barStyle="dark-content" />
-        <BackButton />
-        <KeyboardAwareScrollView>
-          <Input
-            value={name}
-            onChangeText={this.onChangeName}
-            placeholder="품목 이름"
-          />
-          <Button onPress={this.searchItem} activeOpacity={0.7}>
-            <ButtonText>품목 가져오기</ButtonText>
-          </Button>
-          <Input
-            value={martName}
-            onChangeText={this.onChangeMart}
-            placeholder="마트 이름"
-          />
-          <Button onPress={this.searchMart} activeOpacity={0.7}>
-            <ButtonText>마트 가져오기</ButtonText>
-          </Button>
-          <Input
-            value={price}
-            onChangeText={this.onChangePrice}
-            keyboardType="numeric"
-            placeholder="가격"
-          />
-          <Group>
-            <UnitInput1
-              value={unit}
-              onChangeText={this.onChangeUnit}
-              placeholder="단위(100g)"
-            />
-            <UnitInput2
-              value={unitValue}
-              onChangeText={this.onChangeUnitValue}
-              keyboardType="numeric"
-              placeholder="단위가격(174)"
-            />
-          </Group>
-        </KeyboardAwareScrollView>
-        <Footer back={this.props.history.goBack} add={this.addItem} />
-      </Page>
-    );
+  async function searchItem() {
+    await saveSelection({name, martName, price, unit, unitValue});
+    history.push('/list/1');
   }
 
-  onChangeMart = (martName) => {
-    this.setState({martName});
-  };
+  async function searchMart() {
+    await saveSelection({name, martName, price, unit, unitValue});
+    history.push('/list/2');
+  }
 
-  searchMart = async () => {
-    await saveSelection(this.state);
-    this.props.history.push('/list/2');
-  };
-
-  onChangeName = (name) => {
-    this.setState({name});
-  };
-
-  searchItem = async () => {
-    await saveSelection(this.state);
-    this.props.history.push('/list/1');
-  };
-
-  onChangePrice = (price) => {
-    this.setState({price: price.replace(/[^0-9]/g, '')});
-  };
-
-  onChangeUnit = (unit) => {
-    this.setState({unit});
-  };
-
-  onChangeUnitValue = (unitValue) => {
-    this.setState({unitValue: unitValue.replace(/[^0-9]/g, '')});
-  };
-
-  addItem = async () => {
-    const {id} = this.props.match.params;
-    const {martName, name, price, unitValue, unit} = this.state;
+  async function addItem() {
+    const {id} = match.params;
 
     if (!name) {
       Alert.alert('알림', '품목을 입력하세요.', [{text: '확인'}]);
@@ -209,11 +151,11 @@ class Form extends React.Component {
         unitValue,
         unit,
       });
-      this.props.history.replace(`/view/${newItemID}`);
+      history.replace(`/view/${newItemID}`);
       return;
     }
 
-    const {mart} = this.props.history.location.state;
+    const {mart} = history.location.state;
     await updateItem(+id, name, {
       id: mart ? mart.id : null,
       name: martName,
@@ -221,8 +163,49 @@ class Form extends React.Component {
       unitValue: +(unitValue || 0),
       unit,
     });
-    this.props.history.goBack();
-  };
+    history.goBack();
+  }
+
+  return (
+    <Page>
+      <StatusBar barStyle="dark-content" />
+      <BackButton />
+      <KeyboardAwareScrollView>
+        <Input value={name} onChangeText={setName} placeholder="품목 이름" />
+        <Button onPress={searchItem} activeOpacity={0.7}>
+          <ButtonText>품목 가져오기</ButtonText>
+        </Button>
+        <Input
+          value={martName}
+          onChangeText={setMartName}
+          placeholder="마트 이름"
+        />
+        <Button onPress={searchMart} activeOpacity={0.7}>
+          <ButtonText>마트 가져오기</ButtonText>
+        </Button>
+        <Input
+          value={price}
+          onChangeText={setPrice}
+          keyboardType="numeric"
+          placeholder="가격"
+        />
+        <Group>
+          <UnitInput1
+            value={unit}
+            onChangeText={setUnit}
+            placeholder="단위(100g)"
+          />
+          <UnitInput2
+            value={unitValue}
+            onChangeText={setUnitValue}
+            keyboardType="numeric"
+            placeholder="단위가격(174)"
+          />
+        </Group>
+      </KeyboardAwareScrollView>
+      <Footer back={history.goBack} add={addItem} />
+    </Page>
+  );
 }
 
 export default Form;

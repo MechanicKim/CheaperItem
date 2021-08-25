@@ -1,13 +1,8 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {Alert, Linking, StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
-import {
-  getItems,
-  searchItem,
-  removeItem,
-  clearSelection,
-} from '../component/Storage';
+import {searchItem, removeItem, clearSelection} from '../component/Storage';
 
 import EmptyBody from '../component/EmptyBody';
 import {SwipeListView} from 'react-native-swipe-list-view';
@@ -19,62 +14,14 @@ const Page = styled.SafeAreaView`
   flex: 1;
 `;
 
-class Main extends React.Component {
-  constructor(props) {
-    super(props);
+function Main({history}) {
+  const [items, setItems] = useState([]);
+  const [keyword, setKeyword] = useState('');
+  let timer = null;
 
-    this.timer = null;
+  useEffect(search, [keyword]);
 
-    this.state = {
-      items: [],
-      keyword: '',
-    };
-  }
-
-  async componentDidMount() {
-    this.setState({
-      items: await getItems(),
-    });
-  }
-
-  render() {
-    const {items} = this.state;
-
-    return (
-      <Page>
-        <StatusBar barStyle="dark-content" />
-        {items.length === 0 && <EmptyBody />}
-        {items.length > 0 && (
-          <SwipeListView
-            data={items.map((item) => {
-              item.key = item.id;
-              return item;
-            })}
-            renderItem={(data, rowMap) => (
-              <ListItem
-                key={data.item.key}
-                item={data.item}
-                select={this.view}
-              />
-            )}
-            renderHiddenItem={(data, rowMap) => (
-              <ExtendedMenu
-                data={data}
-                rowMap={rowMap}
-                remove={this.remove}
-                search={this.link}
-              />
-            )}
-            rightOpenValue={-150}
-            recalculateHiddenLayout={true}
-          />
-        )}
-        <Footer search={this.search} add={this.add} />
-      </Page>
-    );
-  }
-
-  remove = (item, ref) => {
+  function remove(item, ref) {
     Alert.alert(
       '확인',
       '해당 기록을 삭제할까요?',
@@ -86,26 +33,36 @@ class Main extends React.Component {
         {
           text: '삭제',
           onPress: async () => {
-            const items = await removeItem(item.id);
             ref.closeRow();
-            this.setState({items});
+            setItems(await removeItem(item.id));
           },
         },
       ],
       {cancelable: true},
     );
-  };
+  }
 
-  add = async () => {
+  async function add() {
     await clearSelection();
-    this.props.history.push('/write');
-  };
+    history.push('/write');
+  }
 
-  view = (item) => {
-    this.props.history.push(`/view/${item.id}`);
-  };
+  async function view(item) {
+    await clearSelection();
+    history.push(`/view/${item.id}`);
+  }
 
-  link = async (item) => {
+  function search() {
+    if (timer) {
+      clearTimeout(timer);
+    }
+
+    timer = setTimeout(async () => {
+      setItems(await searchItem(keyword));
+    }, 200);
+  }
+
+  async function link(item) {
     const url = `https://msearch.shopping.naver.com/search/all?query=${item.item}`;
     if (await Linking.canOpenURL(url)) {
       await Linking.openURL(url);
@@ -114,19 +71,36 @@ class Main extends React.Component {
         {text: '확인'},
       ]);
     }
-  };
+  }
 
-  search = (keyword) => {
-    if (this.timer) {
-      clearTimeout(this.timer);
-    }
-
-    this.timer = setTimeout(async () => {
-      this.setState({
-        items: await searchItem(keyword),
-      });
-    }, 200);
-  };
+  return (
+    <Page>
+      <StatusBar barStyle="dark-content" />
+      {items.length === 0 && <EmptyBody />}
+      {items.length > 0 && (
+        <SwipeListView
+          data={items.map((item) => {
+            item.key = item.id;
+            return item;
+          })}
+          renderItem={(data, rowMap) => (
+            <ListItem key={data.item.key} item={data.item} select={view} />
+          )}
+          renderHiddenItem={(data, rowMap) => (
+            <ExtendedMenu
+              data={data}
+              rowMap={rowMap}
+              remove={remove}
+              search={link}
+            />
+          )}
+          rightOpenValue={-150}
+          recalculateHiddenLayout={true}
+        />
+      )}
+      <Footer search={setKeyword} add={add} />
+    </Page>
+  );
 }
 
 export default Main;

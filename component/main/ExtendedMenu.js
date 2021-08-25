@@ -24,9 +24,7 @@ const Text = styled.Text`
   font-family: 'GamjaFlower-Regular';
 `;
 
-export default function ExtendedMenu(props) {
-  const {data, rowMap, remove, search} = props;
-
+export default function ExtendedMenu({data, rowMap, remove, search}) {
   return (
     <Menu>
       <Item

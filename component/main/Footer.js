@@ -31,9 +31,7 @@ const Text = styled.Text`
   font-family: 'NotoSansKR-Regular';
 `;
 
-export default function Footer(props) {
-  const {search, add} = props;
-
+export default function Footer({search, add}) {
   return (
     <View>
       <Input onChangeText={search} placeholder="품목명으로 검색" />

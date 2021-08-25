@@ -46,8 +46,7 @@ const PriceGroup = styled.View`
   background-color: #b2dfdb;
 `;
 
-export default function ListItem(props) {
-  const {item, select} = props;
+export default function ListItem({item, select}) {
   return (
     <Wrap onPress={() => select(item)} activeOpacity={1}>
       <Group>

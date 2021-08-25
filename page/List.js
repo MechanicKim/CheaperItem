@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import {StatusBar} from 'react-native';
 
 import styled from 'styled-components/native';
@@ -30,9 +30,7 @@ const Text = styled.Text`
   color: #212121;
 `;
 
-function Items(props) {
-  const {items, select} = props;
-
+function Items({items, select}) {
   return (
     <Scroll>
       {items.map((item, index) => {
@@ -46,45 +44,38 @@ function Items(props) {
   );
 }
 
-export default class List extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {items: []};
-  }
+export default function List({history, match}) {
+  const [items, setItems] = useState([]);
 
-  async componentDidMount() {
-    let items = [];
-    if (this.props.match.params.type === '1') {
-      items = await getNames('itemNames');
+  useEffect(updateItems, []);
+
+  async function updateItems() {
+    if (match.params.type === '1') {
+      setItems(await getNames('itemNames'));
     } else {
-      items = await getNames('martNames');
+      setItems(await getNames('martNames'));
     }
-    this.setState({items});
   }
 
-  render() {
-    const {items} = this.state;
-
-    return (
-      <Page>
-        <StatusBar barStyle="dark-content" />
-        <BackButton />
-        {items.length === 0 && <EmptyBody />}
-        {items.length > 0 && <Items items={items} select={this.select} />}
-        <Footer back={this.props.history.goBack} />
-      </Page>
-    );
-  }
-
-  select = async (item) => {
+  async function select(item) {
     const selection = await loadSelection();
 
-    if (this.props.match.params.type === '1') {
+    if (match.params.type === '1') {
       selection.name = item;
     } else {
       selection.martName = item;
     }
     await saveSelection(selection);
-    this.props.history.goBack();
-  };
+    history.goBack();
+  }
+
+  return (
+    <Page>
+      <StatusBar barStyle="dark-content" />
+      <BackButton />
+      {items.length === 0 && <EmptyBody />}
+      {items.length > 0 && <Items items={items} select={select} />}
+      <Footer back={history.goBack} />
+    </Page>
+  );
 }

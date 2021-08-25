@@ -18,18 +18,14 @@ export const searchItem = async (keyword) => {
 
 export const removeItem = async (id) => {
   const items = await getItems();
-  const newItems = items.filter((item) => {
-    return item.id !== id;
-  });
+  const newItems = items.filter((item) => item.id !== id);
   await AsyncStorage.setItem('items', JSON.stringify(newItems));
   return newItems;
 };
 
 export const getItem = async (id) => {
   const items = await getItems();
-  return items.filter((item) => {
-    return item.id === +id;
-  })[0];
+  return items.filter((item) => item.id === +id)[0];
 };
 
 export const saveItem = async (item) => {
@@ -47,8 +43,7 @@ export const saveItem = async (item) => {
       },
     ],
   };
-  items.push(newItem);
-  await AsyncStorage.setItem('items', JSON.stringify(items));
+  await AsyncStorage.setItem('items', JSON.stringify([...items, newItem]));
   await saveName('itemNames', item.name);
   await saveName('martNames', item.martName);
 
@@ -56,45 +51,45 @@ export const saveItem = async (item) => {
 };
 
 export const updateItem = async (itemId, itemName, newMart) => {
-  const items = await getItems();
-  items.some(async (item) => {
+  let items = await getItems();
+  items = items.map((item) => {
     if (item.id !== itemId) {
-      return false;
+      return item;
     }
 
     item.name = itemName;
     if (newMart.id) {
-      item.marts.some((mart) => {
+      item.marts = item.marts.map((mart) => {
         if (mart.id !== newMart.id) {
-          return false;
+          return mart;
+        } else {
+          return newMart;
         }
-        mart.name = newMart.name;
-        mart.price = newMart.price;
-        mart.unitValue = newMart.unitValue;
-        mart.unit = newMart.unit;
-        return true;
       });
     } else {
-      newMart.id = new Date().getTime();
-      item.marts.push(newMart);
+      item.marts = [
+        ...item.marts,
+        {
+          ...newMart,
+          id: new Date().getTime(),
+        },
+      ];
     }
 
     item.marts.sort((a, b) => {
       return a.price - b.price;
     });
-
-    await saveName('itemNames', itemName);
-    await saveName('martNames', newMart.name);
-
-    return true;
+    return item;
   });
   await AsyncStorage.setItem('items', JSON.stringify(items));
+  await saveName('itemNames', itemName);
+  await saveName('martNames', newMart.name);
 };
 
 export const removeMart = async (itemId, martId) => {
   let items = await getItems();
   let result = null;
-  items = items.filter((item, index) => {
+  items = items.filter((item) => {
     if (item.id !== itemId) {
       return true;
     }

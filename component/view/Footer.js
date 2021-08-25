@@ -24,31 +24,29 @@ const Text = styled.Text`
   font-family: 'NotoSansKR-Regular';
 `;
 
-export default function Footer(props) {
-  const {back, itemName, add} = props;
+export default function Footer({back, itemName, add}) {
+  async function link() {
+    const url = `https://msearch.shopping.naver.com/search/all?query=${itemName}`;
+    if (await Linking.canOpenURL(url)) {
+      await Linking.openURL(url);
+    } else {
+      Alert.alert('알림', '검색을 지원하지 않는 기기 또는 OS 버전입니다.', [
+        {text: '확인'},
+      ]);
+    }
+  }
 
   return (
     <View>
-      <Button onPress={() => back()} activeOpacity={0.7}>
+      <Button onPress={back} activeOpacity={0.7}>
         <Text>목록</Text>
       </Button>
-      <Button onPress={() => link(itemName)} activeOpacity={0.7}>
+      <Button onPress={link} activeOpacity={0.7}>
         <Text>검색</Text>
       </Button>
-      <Button onPress={() => add()} activeOpacity={0.7}>
+      <Button onPress={add} activeOpacity={0.7}>
         <Text>추가</Text>
       </Button>
     </View>
   );
-}
-
-async function link(itemName) {
-  const url = `https://msearch.shopping.naver.com/search/all?query=${itemName}`;
-  if (await Linking.canOpenURL(url)) {
-    await Linking.openURL(url);
-  } else {
-    Alert.alert('알림', '검색을 지원하지 않는 기기 또는 OS 버전입니다.', [
-      {text: '확인'},
-    ]);
-  }
 }

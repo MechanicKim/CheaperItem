@@ -23,12 +23,10 @@ const Text = styled.Text`
   font-family: 'NotoSansKR-Regular';
 `;
 
-export default function Footer(props) {
-  const {back} = props;
-
+export default function Footer({back}) {
   return (
     <View>
-      <Button onPress={() => back()} activeOpacity={0.7}>
+      <Button onPress={back} activeOpacity={0.7}>
         <Text>취소</Text>
       </Button>
     </View>
